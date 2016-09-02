@@ -2,6 +2,8 @@
 """
 from __future__ import absolute_import, division, print_function
 
+from urlparse import urlparse, unquote
+
 __metaclass__ = type
 import logging
 import socket
@@ -55,7 +57,13 @@ class Connection(AbstractChannel):
         If you are using SSL, make sure the correct port number is specified (usually 5671), as the
         default of 5672 is for non-SSL connections.
 
-        :param str host: host
+        You can define an AMQP connection string as the host, this will be used to set
+        the `host`, `port`, `userid`, `password` and `virtual_host`. The connection string follows
+        this format:
+
+            `amqp://[userid:password@]host[:port][/virtual_host]`
+
+        :param str host: host or amqp connection string
         :param int port: port
         :param ssl: dict of SSL options passed to :func:`ssl.wrap_socket()`, None to disable SSL
         :param float connect_timeout: connect timeout
@@ -110,6 +118,15 @@ class Connection(AbstractChannel):
             self._avail_channel_ids = array('H', range(self.channel_max, 0, -1))
         self._heartbeat_final = 0  # final heartbeat interval after negotiation
         self._heartbeat_server = None
+
+        # detect amqp connection string
+        if host.startswith('amqp://'):
+            parts = urlparse("http://" + host[7:])
+            host = unquote(parts.hostname or '') or None
+            port = parts.port
+            userid = unquote(parts.username or '') or None
+            password = unquote(parts.password or '') or None
+            virtual_host = unquote(parts.path or '/')
 
         # save connection parameters
         self._host = host
