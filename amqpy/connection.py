@@ -123,9 +123,9 @@ class Connection(AbstractChannel):
         if host.startswith('amqp://'):
             parts = urlparse("http://" + host[7:])
             host = unquote(parts.hostname or '') or None
-            port = parts.port
-            userid = unquote(parts.username or '') or None
-            password = unquote(parts.password or '') or None
+            port = parts.port or 5672
+            userid = unquote(parts.username or '') or 'guest'
+            password = unquote(parts.password or '') or 'guest'
             virtual_host = unquote(parts.path or '/')
 
         # save connection parameters
