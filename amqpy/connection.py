@@ -2,7 +2,7 @@
 """
 from __future__ import absolute_import, division, print_function
 
-from urlparse import urlparse, unquote
+from future.moves.urllib.parse import urlparse, urlencode
 
 __metaclass__ = type
 import logging
